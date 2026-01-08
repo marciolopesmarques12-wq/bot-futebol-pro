@@ -7,8 +7,8 @@ from telegram.ext import (
     ContextTypes
 )
 
-BOT_TOKEN = os.getenv(8245511133:AAECSS_gnYJYpZlvc7Tbk_lB6WNJhglgiMg)
-API_KEY = os.getenv(caffc8e22839f780d3884dd16fd8c3a4)
+BOT_TOKEN = os.getenv("8245511133:AAECSS_gnYJYpZlvc7Tbk_lB6WNJhglgiMg")
+API_KEY = os.getenv("caffc8e22839f780d3884dd16fd8c3a4")
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
