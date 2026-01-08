@@ -1,52 +1,51 @@
+import os
 import requests
 from telegram import Update
-from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
+from telegram.ext import (
+    ApplicationBuilder,
+    CommandHandler,
+    ContextTypes
+)
 
-TOKEN = "8245511133:AAH6PQWgLITgvLFiW6dWDS4VGHrjcmlYyTQ"
-
-API_FOOTBALL_KEY = "caffc8e22839f780d3884dd16fd8c3a4"
+BOT_TOKEN = os.getenv("8245511133:AAH6PQWgLITgvLFiW6dWDS4VGHrjcmlYyTQ")
+API_KEY = os.getenv("caffc8e22839f780d3884dd16fd8c3a4")
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
-        "🤖⚽ Bot Profissional de Análises Ativo!\n\n"
-        "Use o comando /jogos para receber análises dos jogos do dia."
+        "🤖 Bot Futebol Pro ativo!\n\n"
+        "Use /jogos para ver análises do dia ⚽📊"
     )
 
 async def jogos(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    url = "https://v3.football.api-sports.io/fixtures?date=TODAY"
-    headers = {"x-apisports-key": API_FOOTBALL_KEY}
+    url = "https://v3.football.api-sports.io/fixtures?date=2026-01-08"
+    headers = {
+        "x-apisports-key": API_KEY
+    }
 
-    response = requests.get(url, headers=headers).json()
-    fixtures = response.get("response", [])[:5]
+    response = requests.get(url, headers=headers)
+    data = response.json()
 
-    if not fixtures:
+    if "response" not in data or len(data["response"]) == 0:
         await update.message.reply_text("Nenhum jogo encontrado hoje.")
         return
 
-    msg = "📊 *Análises do Dia*\n\n"
+    mensagem = "⚽ *Jogos do Dia — Análises*\n\n"
 
-    for game in fixtures:
-        home = game["teams"]["home"]["name"]
-        away = game["teams"]["away"]["name"]
+    for jogo in data["response"][:5]:
+        casa = jogo["teams"]["home"]["name"]
+        fora = jogo["teams"]["away"]["name"]
+        mensagem += f"• {casa} x {fora}\n"
+        mensagem += "Probabilidade: +55% 📈\n\n"
 
-        prob_home = 58
-        prob_draw = 22
-        prob_away = 20
-
-        msg += (
-            f"⚽ {home} x {away}\n"
-            f"🏠 Casa: {prob_home}%\n"
-            f"🤝 Empate: {prob_draw}%\n"
-            f"✈️ Fora: {prob_away}%\n"
-            f"🎯 Palpite: Casa vence\n\n"
-        )
-
-    await update.message.reply_text(msg, parse_mode="Markdown")
+    await update.message.reply_text(mensagem, parse_mode="Markdown")
 
 def main():
-    app = ApplicationBuilder().token(TOKEN).build()
+    app = ApplicationBuilder().token(BOT_TOKEN).build()
+
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("jogos", jogos))
+
+    print("🤖 Bot rodando...")
     app.run_polling()
 
 if __name__ == "__main__":
